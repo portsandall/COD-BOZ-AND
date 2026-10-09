@@ -41,5 +41,9 @@ Upstream: [eugene373/COD-BOZ-Partially-Decompiled](https://github.com/eugene373/
 ```
 APK: `app/build/outputs/apk/debug/app-debug.apk`.
 
-## Current status
-Compatibility fork and CI initiated. Build and gameplay verification are separate gates; a successful APK compilation alone is not proof that zombies gameplay functions.
+## Current status (9 October 2026)
+- **CI build verified successful:** [Actions run #37884873162](https://github.com/portsandall/COD-BOZ-AND/actions/runs/37884873162), commit `f17042a1`.
+- Debug APK was published as artifact `cod-boz-android15-armv7-debug` (archive approximately 46.5 MB; expires 23 October 2026).
+- Root cause of prior build failure: `:app:packageDebug` failed with `java.lang.OutOfMemoryError: Java heap space` in Android Zipflinger / `Compressor.deflate`.
+- Corrective change: 4 GiB Gradle JVM heap with two workers and parallel task execution disabled.
+- **Gameplay is not yet verified.** Next test: install the APK on the Moto G35, then inspect native library loading, OBB storage, gameplay and logcat.
