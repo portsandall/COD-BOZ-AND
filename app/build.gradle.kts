@@ -14,12 +14,17 @@ android {
         }
     }
 
+    // Debug APKs must build without private signing files in CI.
+    val releaseKeystorePath = keystoreProperties.getProperty("storeFile")
+        ?.takeIf { it.isNotBlank() }
     signingConfigs {
-        create("release") {
-            storeFile = rootProject.file(keystoreProperties.getProperty("storeFile", ""))
-            storePassword = keystoreProperties.getProperty("storePassword", "")
-            keyAlias = keystoreProperties.getProperty("keyAlias", "")
-            keyPassword = keystoreProperties.getProperty("keyPassword", "")
+        if (releaseKeystorePath != null) {
+            create("release") {
+                storeFile = rootProject.file(releaseKeystorePath)
+                storePassword = keystoreProperties.getProperty("storePassword", "")
+                keyAlias = keystoreProperties.getProperty("keyAlias", "")
+                keyPassword = keystoreProperties.getProperty("keyPassword", "")
+            }
         }
     }
 
@@ -72,7 +77,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (releaseKeystorePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
