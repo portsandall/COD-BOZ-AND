@@ -38,6 +38,10 @@ android {
     defaultConfig {
         applicationId = "com.activision.boz"
         minSdk = 21
+        // Keep the original game runtime on 32-bit ARM. The ARM64 directory
+        // lacks libIsDevice.so and may otherwise be selected on ARM64 phones.
+        // Modern devices that advertise armeabi-v7a can still run this APK.
+        ndk { abiFilters += listOf("armeabi-v7a") }
         // Low targetSdk restores legacy WRITE_EXTERNAL_STORAGE semantics for
         // the engine, which writes game data to /sdcard/Android/obb/<pkg>/.
         // At SDK 36 those writes are EACCES-blocked even with All files access.
