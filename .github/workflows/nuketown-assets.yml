@@ -1,0 +1,38 @@
+name: Nuketown map-format investigation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [NUKETOWN-AND]
+    paths:
+      - 'tools/nuketown/**'
+      - 'tests/test_nuketown_inventory.py'
+      - 'docs/NUKETOWN_PORT.md'
+      - '.github/workflows/nuketown-assets.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-mobile-loader:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate DTRZ inventory parser
+        run: python3 -m unittest discover -s tests -p 'test_nuketown_inventory.py' -v
+      - name: Inventory tracked BOZ loader resource groups
+        run: |
+          python3 tools/nuketown/inventory.py \
+            --archive app/src/main/assets/blackops_loader.dz \
+            --json-out build/nuketown/loader-inventory.json
+      - name: Upload metadata manifest (not game assets)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuketown-loader-index
+          path: build/nuketown/loader-inventory.json
+          if-no-files-found: error
+          retention-days: 7
