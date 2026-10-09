@@ -37,7 +37,13 @@ jobs:
       - name: Gradle assemble debug
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleDebug -Pandroid.useAndroidX=true --no-daemon --stacktrace
+          # The last build compiled Kotlin and DEX but failed while compressing
+          # APK assets: zipflinger OutOfMemoryError: Java heap space.
+          # Increase the daemon heap and cap worker count on 7 GB CI runners.
+          ./gradlew :app:assembleDebug \
+            -Pandroid.useAndroidX=true \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=768m -Dfile.encoding=UTF-8" \
+            --max-workers=2 --no-parallel --no-daemon --stacktrace
       - name: Upload ARMv7 test APK
         if: success()
         uses: actions/upload-artifact@v4
